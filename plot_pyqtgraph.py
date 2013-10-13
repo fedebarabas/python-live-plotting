@@ -1,4 +1,5 @@
 
+from PyQt4.uic import loadUi
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
 
@@ -7,6 +8,13 @@ import random
 import time
 import math
 import numpy as np
+
+class MainWindow(QtGui.QMainWindow):
+    def __init__(self, parent = None):
+        super(MainWindow, self).__init__(parent)
+        
+        # load the ui
+        loadUi('testui.ui', self)
 
 class DynamicPlotter():
 
@@ -18,8 +26,13 @@ class DynamicPlotter():
         self.x = np.linspace(-timewindow, 0.0, self._bufsize)
         self.y = np.zeros(self._bufsize, dtype=np.float)
         # PyQtGraph stuff
-        self.app = QtGui.QApplication([])
-        self.plt = pg.plot(title='Dynamic Plotting with PyQtGraph')
+#        self.app = QtGui.QApplication([])
+        self.plt = pg.PlotWidget()
+        
+#        <-- SOMETHING MISSING HERE -->
+        
+        pg.setConfigOptions(antialias=True)
+#        self.plt = pg.plot(title='Dynamic Plotting with PyQtGraph')
         self.plt.resize(*size)
         self.plt.showGrid(x=True, y=True)
         self.plt.setLabel('left', 'amplitude', 'V')
@@ -40,12 +53,19 @@ class DynamicPlotter():
         self.databuffer.append( self.getdata() )
         self.y[:] = self.databuffer
         self.curve.setData(self.x, self.y)
-        self.app.processEvents()
+#        self.app.processEvents()
+        app.processEvents()
 
     def run(self):
-        self.app.exec_()
+#        self.app.exec_()
+        app.exec_()
 
 if __name__ == '__main__':
+
+    app = QtGui.QApplication([])
+    
+    window = MainWindow()
+    window.show()
 
     m = DynamicPlotter(sampleinterval=0.05, timewindow=10.)
     m.run()
