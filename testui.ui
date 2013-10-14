@@ -17,10 +17,10 @@
    <widget class="PlotWidget" name="plotwidget">
     <property name="geometry">
      <rect>
-      <x>430</x>
-      <y>240</y>
-      <width>256</width>
-      <height>192</height>
+      <x>130</x>
+      <y>70</y>
+      <width>371</width>
+      <height>251</height>
      </rect>
     </property>
    </widget>
