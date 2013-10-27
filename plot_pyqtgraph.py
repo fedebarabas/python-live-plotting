@@ -9,6 +9,13 @@ import time
 import math
 import numpy as np
 
+def datagenerator():
+    frequency = 0.5
+    noise = random.normalvariate(0., 1.)
+    new = 10.*math.sin(time.time()*frequency*2*math.pi) + noise
+    return new
+
+
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent = None):
         super(MainWindow, self).__init__(parent)
@@ -42,14 +49,10 @@ class DynamicPlotter():
         self.timer.timeout.connect(self.updateplot)
         self.timer.start(self._interval)
 
-    def getdata(self):
-        frequency = 0.5
-        noise = random.normalvariate(0., 1.)
-        new = 10.*math.sin(time.time()*frequency*2*math.pi) + noise
-        return new
+
 
     def updateplot(self):
-        self.databuffer.append( self.getdata() )
+        self.databuffer.append( datagenerator() )
         self.y[:] = self.databuffer
         self.curve.setData(self.x, self.y)
 #        self.app.processEvents()
