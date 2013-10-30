@@ -22,12 +22,12 @@ class MainWindow(QtGui.QMainWindow):
         
         # load the ui
         self.ui = loadUi('testui.ui', self)
-        self.widgetsize = [self.ui.plotwidget.width(), 
-                           self.ui.plotwidget.height()]
+        self.widgetsize = [self.ui.plotwidget.width(), self.ui.plotwidget.height()]
+
 
 class DynamicPlotter():
 
-    def __init__(self, sampleinterval=0.1, timewindow=10., size=(600,350)):
+    def __init__(self, func, sampleinterval=0.1, timewindow=10., size=(600,350)):
         # Data stuff
         self._interval = int(sampleinterval*1000)
         self._bufsize = int(timewindow/sampleinterval)
@@ -35,6 +35,7 @@ class DynamicPlotter():
         self.x = np.linspace(-timewindow, 0.0, self._bufsize)
         self.y = np.zeros(self._bufsize, dtype=np.float)
         # PyQtGraph stuff
+#        
         self.plt = window.ui.plotwidget
         
         pg.setConfigOptions(antialias=True)
@@ -48,19 +49,20 @@ class DynamicPlotter():
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.updateplot)
         self.timer.start(self._interval)
-
-
+        
+        self.func = func
 
     def updateplot(self):
-        self.databuffer.append( datagenerator() )
+        self.databuffer.append(self.func)
         self.y[:] = self.databuffer
         self.curve.setData(self.x, self.y)
 #        self.app.processEvents()
-        app.processEvents()
+#        app.processEvents()
 
-    def run(self):
-#        self.app.exec_()
-        app.exec_()
+#    def run(self):
+##        self.app.exec_()
+#        
+#        
 
 if __name__ == '__main__':
 
@@ -69,7 +71,8 @@ if __name__ == '__main__':
     window = MainWindow()
     window.show()
 
-    m = DynamicPlotter(sampleinterval=0.05, timewindow=10., 
+    m = DynamicPlotter(datagenerator(), sampleinterval=0.05, timewindow=10., 
                        size=window.widgetsize)
-    m.run()
+#    
+    app.exec_()
 
