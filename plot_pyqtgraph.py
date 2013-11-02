@@ -9,13 +9,14 @@ import time
 import math
 import numpy as np
 
-#from pint import UnitRegistry
+from pint import UnitRegistry
+ureg = UnitRegistry()
 
 def amplitude():
     frequency = 0.5
     noise = random.normalvariate(0., 1.)
     new = 10.*math.sin(time.time()*frequency*2*math.pi) + noise
-    return new
+    return new * ureg.volt
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -36,6 +37,8 @@ class DynamicPlotter():
         self.x = np.linspace(-timewindow, 0.0, self._bufsize)
         self.y = np.zeros(self._bufsize, dtype=np.float)
         
+        self.func = func        
+      
         self.plt = widget
         
         pg.setConfigOptions(antialias=True)
@@ -43,7 +46,7 @@ class DynamicPlotter():
         size = [widget.width(), widget.height()]
         self.plt.resize(*size)
         self.plt.showGrid(x=True, y=True)
-        self.plt.setLabel('left', 'amplitude', 'V')
+        self.plt.setLabel('left', self.func.__name__, self.func().units)
         self.plt.setLabel('bottom', 'time', 's')
         self.curve = self.plt.plot(self.x, self.y, pen='y')
         # QTimer
@@ -51,18 +54,15 @@ class DynamicPlotter():
         self.timer.timeout.connect(self.updateplot)
         self.timer.start(self._interval)
         
-        self.func = func
-
     def updateplot(self):
-        self.databuffer.append( self.func() )
+        self.databuffer.append( self.func().magnitude )
         self.y[:] = self.databuffer
         self.curve.setData(self.x, self.y)
         
 
 if __name__ == '__main__':
 
-#    ureg = UnitRegistry()
-
+    
     app = QtGui.QApplication([])
     
     window = MainWindow()
