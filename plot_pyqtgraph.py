@@ -9,7 +9,9 @@ import time
 import math
 import numpy as np
 
-def datagenerator():
+#from pint import UnitRegistry
+
+def amplitude():
     frequency = 0.5
     noise = random.normalvariate(0., 1.)
     new = 10.*math.sin(time.time()*frequency*2*math.pi) + noise
@@ -59,12 +61,14 @@ class DynamicPlotter():
 
 if __name__ == '__main__':
 
+#    ureg = UnitRegistry()
+
     app = QtGui.QApplication([])
     
     window = MainWindow()
     window.show()
 
-    m = DynamicPlotter(window.ui.plotwidget, datagenerator, sampleinterval=0.05, 
+    m = DynamicPlotter(window.ui.plotwidget, amplitude, sampleinterval=0.05, 
                        timewindow=10.)
                        
     app.exec_()
