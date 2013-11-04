@@ -22,25 +22,29 @@ def amplitude():
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent = None):
         super(MainWindow, self).__init__(parent)
-        
+
         # load the ui
         self.ui = loadUi('testui.ui', self)
 
 
 class DynamicPlotter():
 
-    def __init__(self, widget, func, sampleinterval=0.1, timewindow=10.):
+    def __init__(self, widget, func, sampleinterval=0.05 * ureg.s,
+                 timewindow=10. * ureg.s):
+
         # Data stuff
-        self._interval = int(sampleinterval*1000)
-        self._bufsize = int(timewindow/sampleinterval)
+        self._interval = int(sampleinterval.to(ureg.s).magnitude*1000)
+        self._bufsize = int((timewindow.to(ureg.s) /
+                                        sampleinterval.to(ureg.s)).magnitude)
         self.databuffer = collections.deque([0.0]*self._bufsize, self._bufsize)
-        self.x = np.linspace(-timewindow, 0.0, self._bufsize)
+        self.x = np.linspace(-timewindow.to(ureg.s).magnitude, 0.0,
+                                                                 self._bufsize)
         self.y = np.zeros(self._bufsize, dtype=np.float)
-        
-        self.func = func        
-      
+
+        self.func = func
+
         self.plt = widget
-        
+
         pg.setConfigOptions(antialias=True)
 #        self.plt = pg.plot(title='Dynamic Plotting with PyQtGraph')
         size = [widget.width(), widget.height()]
@@ -53,23 +57,22 @@ class DynamicPlotter():
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.updateplot)
         self.timer.start(self._interval)
-        
+
     def updateplot(self):
         self.databuffer.append( self.func().magnitude )
         self.y[:] = self.databuffer
         self.curve.setData(self.x, self.y)
-        
+
 
 if __name__ == '__main__':
 
-    
+
     app = QtGui.QApplication([])
-    
+
     window = MainWindow()
     window.show()
 
-    m = DynamicPlotter(window.ui.plotwidget, amplitude, sampleinterval=0.05, 
-                       timewindow=10.)
-                       
+    m = DynamicPlotter(window.ui.plotwidget, amplitude)
+
     app.exec_()
 
